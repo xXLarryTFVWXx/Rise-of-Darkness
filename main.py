@@ -1,10 +1,10 @@
 import pyhog
 DEBUG = True
 pyhog.ON()
-WIN = pyhog.gui.Window(320, 240, bgcolor="cyan", fullscreen=True)
+WIN = pyhog.gui.Window(320, 240, bgcolor="cyan")#, fullscreen=True)
 WIN.display()
 Sonic = pyhog.dynamics.Character(WIN.surf, "sonic", {"stand": [(8,17,27,39)]})
-EHZ = pyhog.dynamics.Level(WIN.surf, "Art/Zones/EHZ/FG.png", ["Art/Zones/EHZ/colliders/colA.png", "Art/Zones/EHZ/colliders/colB.png"], "Emerald Hill", 1, "music/Sonic.wav", "Art/Zones/EHZ/BG.png", y=-560)
+EHZ = pyhog.dynamics.Level(WIN.surf, "Art/Zones/EHZ/FG.png", ["Art/Zones/EHZ/colliders/colA.png", "Art/Zones/EHZ/colliders/colB.png"], "Emerald Hill", 1, bg="Art/Zones/EHZ/BG.png", y=-560)
 dbgtxt = pyhog.gui.Box(WIN.surf, [10,10], text="Debug", hover=True, function=lambda: print("This should work"))
 def EHZ_DEBUG():
     EHZ.load()
@@ -40,14 +40,12 @@ while gRun:
         else:
             del s
             if pyhog.dynamics.curlvl.started:
-                print(Sonic.loaded)
                 if pyhog.key_pressed("right"):
                     drc = 1
                 elif pyhog.key_pressed("left"):
                     drc = -1
                 else:
                     drc = 0
-                Sonic.update(drc)
                 if pyhog.key_pressed("up"):
                     Sonic.ang -= 4
                 elif pyhog.key_pressed("down"):
@@ -56,11 +54,11 @@ while gRun:
                     if not sunset.loaded:
                         sunset.load()
                 if Sonic.layer == 2:
-                    Sonic.render()
+                    Sonic.update(drc)
                     pyhog.dynamics.curlvl.draw()
                 else:
                     pyhog.dynamics.curlvl.draw()
-                    Sonic.render()
+                    Sonic.update(drc)
             else:
                 pyhog.dynamics.curlvl.load({1:[Sonic]})
                 pyhog.dynamics.curlvl.start()

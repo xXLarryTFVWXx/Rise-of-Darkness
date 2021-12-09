@@ -39,20 +39,20 @@ class Character(graphics.Spritesheet):
         self.up = self.ang - 90
         if drc > 0:
             if self.gsp < 0:
-                self.gsp += dec
+                self.gsp += self.dec
                 if self.gsp >= 0:
                     self.gsp = 0.5
             elif self.gsp > 0:
-                self.gsp += acc
+                self.gsp += self.acc
                 if self.gsp > self.top:
                     self.gsp = self.top
         elif drc < 0:
             if self.gsp > 0:
-                self.gsp -= dec
+                self.gsp -= self.dec
                 if self.gsp <= 0:
-                    gsp = -0.5
+                    self.gsp = -0.5
             elif self.gsp < 0:
-                self.gsp -= acc
+                self.gsp -= self.acc
                 if abs(self.gsp) > self.top:
                     self.gsp = -self.top
         else:
@@ -72,8 +72,8 @@ class Character(graphics.Spritesheet):
             self.yvel += grv
             if self.yvel > self.top:
                 self.yvel = self.top
-            self.pos += self.yvel
-        print(self.pos.y)
+            self.pos.from_polar((self.yvel, 90))
+        print(self.grounded)
         curlvl.collide(self)
         self.render()
 class Boss(Character):
@@ -159,6 +159,7 @@ class Level:
                  caller.pos.from_polar(1, caller.up)
         else:
             caller_pos = int(caller.pos.x), int(caller.pos.y)
+            print(caller_pos)
             while self.collision["colA"].get_at(caller_pos)[3] == 255 or self.collision["colB"].get_at(caller_pos)[3] == 255:
                 caller.pos.vec.from_polar((1, caller.up))
     def draw(self):

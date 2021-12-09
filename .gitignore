@@ -1,0 +1,12 @@
+.vs/
+Art/
+Include/
+Lib/
+music/
+Sound/
+Scripts/
+boxTest.py
+BTpi.py
+conTest.py
+pyvenv.cfg
+state.phg

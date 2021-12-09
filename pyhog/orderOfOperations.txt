@@ -1,0 +1,50 @@
+loop:
+    characters:
+        if Normal: 
+            is balancing
+            starting spin dash
+            adjust gsp based on ground angle
+            check for jump starting
+            update gsp based on input and friction/deceleration
+            check for start ducking, ledge balance, etc.
+            wall sensors:
+                which ones are active. Before Sonic moves!!!!
+            check for roll start
+            camera boundaries
+            move sonic
+                update xpos and ypos based on xvel and yvel
+            floor sensors:
+                update ang and pos
+                stick to floor if not too far, else become airbone
+                
+            check for falling if gsp too low on wall/ceiling
+        elif rolling:
+            adjust gsp based on ang
+            check for jump start
+            update gsp based on input and apply friction
+            wall sensor collision:
+                which ones are active.  Before Sonic Moves!!!!
+            camera boundaries
+            Move Sonic:
+                update xpos and y pos based on xvel and yvel
+                floor collision:
+                    update ang and pos
+                    stick to floor if not too far
+                check for falling when gsp too low for wall/ceiling
+        elif airbone:
+            check for jump button release
+            check for turning super
+            update xvel based on input
+            apply air drag
+            move Sonic
+                update xpos and ypos based on xvel and y vel
+            apply grv
+                yvel += grv. After Sonic moves!!!!
+            check underwater for reduced grv
+            set ang = 0
+            collision
+                which ones are active
+                wall happens first
+        check for overlapping hitboxes.  From Sonic's side
+    Special Objects
+    General Objects

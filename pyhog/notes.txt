@@ -1,0 +1,17 @@
+Read others code:
+    Understand others code
+    Criticize your own code as you would others'
+    Read from code on github
+Work on Projects:
+    Choose a project
+    Look stuff up
+    Push through
+Learn Data Structures and Algorithms:
+    Gives intuition on what is going on behind the scenes.
+        every function/method has code behind it
+Learn Design Patterns:
+    Avoids having to rewrite thousands of lines of code.
+Write Simple Code:
+    MisQuote "The simplest things are the most difficult to come up with or create"
+    Your cellphone is simple to use, but complex to make.
+    It is harder to write easy to read code, than harder to read code.

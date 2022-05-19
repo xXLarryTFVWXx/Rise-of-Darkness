@@ -1,12 +1,13 @@
 """Pyhog file handler"""
 
 """Version declaration"""
-__Release__ = 0x00
-__Feature__ = 0x00
-__Bugfix__ = 0x00
-__BETA__ = 0x01
-
-VER = f"{chr(__Release__)}{chr(__Feature__)}{chr(__Bugfix__)}{chr(__BETA__)}"
+__BRANCH__ = 0x00 # 0x00 is the master branch 0x01 is the prelease branch and 0x02 is the dev branch
+__REALYEAR__ = 2022
+__YEAR__ = (__REALYEAR__ // 256, __REALYEAR__ % 256)
+__MONTH__ = 0x00
+__DAY__ = 13
+print(f"{__name__} says {(__YEAR__[0]*256) + __YEAR__[1] == __REALYEAR__}")
+VER = f"{chr(__BRANCH__)}{chr(__YEAR__[0])}{chr(__YEAR__[1])}{chr(__MONTH__)}{chr(__DAY__)}"
 
 """Header building"""
 
@@ -48,6 +49,8 @@ def save(fname, data:str):
 def load(fname):
     with open(f"{fname}.phg", "rb") as f:
         full = f.read()
-        
+
+
+
 if not __name__ == "__main__":
     set_state(0, 0)

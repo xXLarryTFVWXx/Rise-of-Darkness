@@ -1,10 +1,12 @@
-.vs/
+.vscode/
 Art/
 Include/
 Lib/
 music/
 Sound/
 Scripts/
+pyhog/.gitignore
+.gitignore
 boxTest.py
 BTpi.py
 conTest.py

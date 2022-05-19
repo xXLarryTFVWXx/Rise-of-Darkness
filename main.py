@@ -22,54 +22,58 @@ if DEBUG:
 while gRun:
     WIN.clear()
     state = pyhog.files.get_state()
+    print(f"{state=}")
     """The game loop"""
     if pyhog.key_pressed("esc"):
         gRun = False
-    if state[0] == "menu":
-        for btnlst in pyhog.gui.curmnu.btns:
-            for btn in btnlst:
-                btn.draw()
-    else:
-        try:
-            s = pyhog.dynamics.curlvl.started
-        except AttributeError as e:
-            _ = e
-            del _
-        except Exception as e:
-            print(e)
+    if not state is None:
+        if state[0] == "menu":
+            for btnlst in pyhog.gui.curmnu.btns:
+                for btn in btnlst:
+                    btn.draw()
         else:
-            del s
-            if pyhog.dynamics.curlvl.started:
-                if pyhog.key_pressed("right"):
-                    drc = 1
-                elif pyhog.key_pressed("left"):
-                    drc = -1
-                else:
-                    drc = 0
-                if pyhog.key_pressed("up"):
-                    Sonic.ang -= 4
-                elif pyhog.key_pressed("down"):
-                    Sonic.ang += 4
-                if time == "sunset":
-                    if not sunset.loaded:
-                        sunset.load()
-                if Sonic.layer == 2:
-                    Sonic.update(drc)
-                    pyhog.dynamics.curlvl.draw()
-                else:
-                    pyhog.dynamics.curlvl.draw()
-                    Sonic.update(drc)
+            try:
+                s = pyhog.dynamics.curlvl.started
+            except AttributeError as e:
+                _ = e
+                del _
+            except Exception as e:
+                print(e)
             else:
-                pyhog.dynamics.curlvl.load({1:[Sonic]})
-                pyhog.dynamics.curlvl.start()
+                del s
+                if pyhog.dynamics.curlvl.started:
+                    if pyhog.key_pressed("right"):
+                        drc = 1
+                    elif pyhog.key_pressed("left"):
+                        drc = -1
+                    else:
+                        drc = 0
+                    if pyhog.key_pressed("up"):
+                        Sonic.ang -= 4
+                    elif pyhog.key_pressed("down"):
+                        Sonic.ang += 4
+                    if time == "sunset":
+                        if not sunset.loaded:
+                            sunset.load()
+                    if Sonic.layer == 2:
+                        Sonic.update(drc)
+                        pyhog.dynamics.curlvl.draw()
+                    else:
+                        pyhog.dynamics.curlvl.draw()
+                        Sonic.update(drc)
+                else:
+                    pyhog.dynamics.curlvl.load({1:[Sonic]})
+                    pyhog.dynamics.curlvl.start()
+    print(f'{boss=}')
             
     if boss == False:
         if pyhog.key_pressed("dbg"):
             boss = 'pre'
     elif boss == "pre":
         pyhog.load_Music("music/bossB1.wav")
+        pyhog.music_volume(0.25)
         boss = "activate"
-    elif boss == 'activate' and not pyhog.get_busy():
+    elif boss == 'activate':
         pyhog.play_music(-1)
         boss = True
     c = pyhog.clock()

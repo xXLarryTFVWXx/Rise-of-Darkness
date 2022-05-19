@@ -1,6 +1,9 @@
-import math, random, pygame
-from .graphics import *
+import ctypes m, math, random, pygame from .graphics import *
 atkdur = 0
+
+""" class new_vector(pygame.math.Vector2):
+    def __init__(self, position, sub_pixel=0): """
+
 
 class Character(Spritesheet):
     def __init__(self, pos, surf, characterName, cells:dict={"stand": [0,0,64,64]}):
@@ -14,15 +17,17 @@ class Character(Spritesheet):
         self.vec = pygame.Vector2((self.x, self.y))
         self.xvel = self.yvel = 0
         self.frc = self.acc = 0.046875
+        self.dec = 0.03125
         self.layer = 0
         self.rect = pygame.Rect(self.vec, (self.width, self.height))
         self.ang = 0
         self.top = 6
+        self.position = new_vector(pos, sub=128)
     def update(self, drc: str):
         self.up = self.ang - 90
         if drc > 0:
             if self.gsp < 0:
-                self.gsp += dec
+                self.gsp += self.dec
                 if self.gsp >= 0:
                     self.gsp = 0.5
             elif self.gsp > 0:

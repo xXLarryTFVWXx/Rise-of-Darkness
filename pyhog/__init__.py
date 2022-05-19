@@ -35,6 +35,7 @@ from . import dynamics
 from . import files
 from . import gui
 from . import audio
+from . import math
 github = "xxlarytfvwxx"
 set_state = files.set_state
 get_state = files.get_state
@@ -85,5 +86,7 @@ def stop_music():
     pygame.mixer_music.stop()
 def get_busy():
     return bool(pygame.mixer_music.get_busy())
+def music_volume(vol):
+    pygame.mixer_music.set_volume(vol)
 def clock():
     return pygame.time.Clock()

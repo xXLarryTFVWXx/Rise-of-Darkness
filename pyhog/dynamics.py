@@ -58,6 +58,7 @@ class Character(graphics.Spritesheet):
         else:
             self.gsp = min(abs(self.gsp), self.frc) * math.sin(self.gsp)
         self.pos.from_polar((self.gsp, self.ang))
+        self.pos = pygame.Vector2(self.pos)
         self.up = self.ang - 90
         self.rect = pygame.Rect(*self.pos, 10, 10)
         self.coll_anchor = pygame.Vector2(self.rect.center)
@@ -86,10 +87,10 @@ class Boss(Character):
         
     def update(self):
         global atkdur
-        if len(behaviors) >= 2:            
+        if len(self.behaviors) >= 2:            
             if self.atkdur == 0:
                 targetPos = None
-                atk = random.choice(behaviors).lower()
+                atk = random.choice(self.behaviors).lower()
                 if atk['name'] == "moveleft":
                     distance = self.pos.distance_to(pygame.Vector2(-150,self.y))
                 elif atk['name'] == "moveright":

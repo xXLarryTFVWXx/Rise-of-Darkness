@@ -2,6 +2,7 @@ import ctypes, math, random, functools, pygame
 from . import graphics
 from . import audio
 from . import files
+from . import math as phgMath
 
 curlvl = None
 atkdur = 0

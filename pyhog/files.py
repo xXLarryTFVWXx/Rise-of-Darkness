@@ -1,14 +1,15 @@
 """Pyhog file handler"""
 
 """Version declaration"""
-__BRANCH__ = 0x00 # 0x00 is the master branch 0x01 is the prelease branch and 0x02 is the dev branch
+__BRANCH__ = 0x01 # 0x01 is the master branch 0x02 is the prelease branch and 0x03 is the dev branch
 __REALYEAR__ = 2022
 __YEAR__ = (__REALYEAR__ // 256, __REALYEAR__ % 256)
 __MONTH__ = 0x00
 __DAY__ = 13
-print(f"{__name__} says {(__YEAR__[0]*256) + __YEAR__[1] == __REALYEAR__}")
-VER = f"{chr(__BRANCH__)}{chr(__YEAR__[0])}{chr(__YEAR__[1])}{chr(__MONTH__)}{chr(__DAY__)}"
 
+VER = f"{chr(__BRANCH__)}{chr(__YEAR__[0])}{chr(__YEAR__[1])}{chr(__MONTH__)}{chr(__DAY__)}"
+engine_version = 0
+engine_version = int("".join([str(ord(_)) for _ in VER]))
 """Header building"""
 
 HeaderLen = 0x08
@@ -24,10 +25,13 @@ class VersionError(Exception):
 def verify_version(file, data):
     """Verifies that the data's version is the same as the above Version"""
     file_ver = ""
-    for _ in data[1:5]:
-        file_ver += chr(_)
-    file_ver = file_ver
-    return file_ver == VER
+    for num in data[1:5]:
+        file_ver += str(num)
+    version_to_check = int(file_ver)
+    version_delta = engine_version - version_to_check
+    if not version_delta == 0:
+        raise VersionError(f"Uh oh, looks like this file is {version_delta} versions behind.")
+    return True
 
 def get_state() -> str:
     """Gets the current state of the game with an external file"""

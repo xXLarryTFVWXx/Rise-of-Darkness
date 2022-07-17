@@ -2,9 +2,9 @@ import ctypes, math, pygame
 from . import files
 from . import audio
 
-menus = {}
-
-curmnu = None
+menus = {
+    "current": None
+}
 
 def get_mouse():
     return pygame.Rect(pygame.mouse.get_pos(), (1,1))
@@ -50,7 +50,7 @@ class Box:
         self.surf = surf
         self.pos = pos
         if 'size' in kwargs:
-            self.size = list(size)
+            self.size = list(kwargs["size"])
         else:
             self.size = [128, 64]
         if 'text' in kwargs:
@@ -124,7 +124,7 @@ class Menu:
             else:
                 self.bgimg = bg
         elif type(bg) == tuple or type(bg) == list:
-            self.bgc = bgc
+            self.bgc = bg
         if not bgm==None:
             self.bgm = bgm
         global menus, mnu
@@ -134,7 +134,6 @@ class Menu:
             menus[new_id.value] = self
             
     def open(self):
-        global curmnu
         try:
             audio.load_music(self.bgm)
             if not audio.get_busy():
@@ -143,7 +142,7 @@ class Menu:
             print("there is no music")
         except Exception as e:
             print(e)
-        curmnu = self
+        menus['current'] = self
         files.set_state(0x00, self.mnu_ID)
         
         

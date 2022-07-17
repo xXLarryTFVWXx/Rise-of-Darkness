@@ -23,19 +23,27 @@ class Character(graphics.Spritesheet):
         self.coll_anchor = pygame.Vector2(self.rect.center)
         self.ang = 0
         self.top = 6
-        self.c_angles = [
-            64.6538240580533,
-            115.34617594194671,
-            -64.6538240580533,
-            -115.34617594194671
-        ]
-        self.coll_delta = 21.02379604162864
-        
-        """The following might be inefficient, but it's the best I've got for right now."""
-        self.coll_pos = {_: pygame.Vector2(self.coll_anchor).from_polar((self.coll_delta, ang)) for _, ang in enumerate(self.c_angles)}
-        self.coll_pos[4], self.coll_pos[5] = [self.ang, 10], [self.ang, -10]
+        self.height_radius = 19
+        self.width_radius = 9
         self.loaded = False
         self.grounded = False
+        self.is_ball = False
+        self.active_sensors = [True for _ in range(6)]
+    def activate_sensors(self):
+        self.active_sensors = [True for _ in range(6)]
+        if self.gsp > 0:
+            self.active_sensors[4] = False
+        elif self.gsp < 0:
+            self.active_sensors[5] = False
+        if self.grounded:
+            self.active_sensors[2:2] = [False, False]
+        else:
+            if self.yvel > 0:
+                self.active_sensors[2:2] = [False, False]
+            else:
+                self.active_sensors[0:2] = [False, False]
+
+        
     def update(self, drc: int):
         self.up = self.ang - 90
         if drc > 0:
@@ -58,23 +66,25 @@ class Character(graphics.Spritesheet):
                     self.gsp = -self.top
         else:
             self.gsp = min(abs(self.gsp), self.frc) * math.sin(self.gsp)
-        self.pos.from_polar((self.gsp, self.ang))
-        self.pos = pygame.Vector2(self.pos)
+        """Change Radii depending if we are in a ball or not"""
+        if self.is_ball:
+            self.height_radius = 7
+            self.width_radius = 14
+        else:
+            self.height_radius = 19
+            self.width_radius = 9
+        #
+        self.activate_sensors()
+        self.pos += pygame.Vector2(self.gsp, 0).rotate(self.ang) 
         self.up = self.ang - 90
         self.rect = pygame.Rect(*self.pos, 10, 10)
-        self.coll_anchor = pygame.Vector2(self.rect.center)
-        for k, v in self.coll_pos.items():
-            _ = self.coll_anchor
-            if not k > 3:
-                self.coll_pos = {_: pygame.Vector2(self.coll_anchor).from_polar((self.coll_delta, ang)) for _, ang in enumerate(self.c_angles)}
-                self.coll_pos[4], self.coll_pos[5] = [self.ang, 10], [self.ang, -10] 
         if not self.loaded:
             self.load()
         if not self.grounded:
             self.yvel += grv
             if self.yvel > self.top:
                 self.yvel = self.top
-            self.pos.from_polar((self.yvel, 90))
+            self.pos += pygame.Vector2(0, self.yvel)
         print(self.grounded)
         curlvl.collide(self)
         self.render()
@@ -128,10 +138,10 @@ class Level:
         self.collision = {}
         if not len(self.colFiles) > 2:
             for num, file in enumerate(self.colFiles):
-                if num == 0:
-                    self.collision["colA"] = graphics.load_image(file)
-                else:
-                    self.collision["colB"] = graphics.load_image(file)
+                
+                self.collision[num] = graphics.load_image(file)
+        else:
+            raise NotImplementedError("I have yet to code in support for more than 2 layers.")
         if self.bg:
             self.bgIMG = graphics.load_image(self.bg)
         else:
@@ -153,17 +163,12 @@ class Level:
         pygame.mixer.music.unload()
     def collide(self, caller):
         if not caller.layer == 0:
-            if caller.layer == 1:
-                layer = "colA"
-            else:
-                layer = "colB"
-            while self.collision[caller.layer].get_at(caller.pos)[3] == 255:
-                 caller.pos.from_polar(1, caller.up)
-        else:
-            caller_pos = int(caller.pos.x), int(caller.pos.y)
-            print(caller_pos)
-            while self.collision["colA"].get_at(caller_pos)[3] == 255 or self.collision["colB"].get_at(caller_pos)[3] == 255:
-                caller.pos.vec.from_polar((1, caller.up))
+            collision_layer = self.collision[caller.layer]
+        caller_pos = int(caller.pos.x), int(caller.pos.y)
+        pixel = collision_layer.get_at(*caller_pos)
+        is_colliding = not pixel == (0,0,0,0)
+        if is_colliding:
+            return True, pixel[3]
     def draw(self):
         if self.bgIMG:
             self.surf.blit(self.bgIMG, (self.x, 0))

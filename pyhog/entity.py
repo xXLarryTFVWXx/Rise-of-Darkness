@@ -22,8 +22,7 @@ class Character(Spritesheet):
         self.top = 6
         self.position = v2(pos)
         self._facing = v2(1,0)
-        self.floor_under_right_a = self.floor_under_right_b = False
-        self.floor_under_left_a = self.floor_under_left_b = False
+        self.floor_sensors_active = True
 
     @property
     def facing(self):
@@ -53,7 +52,8 @@ class Character(Spritesheet):
                     self.ground_speed = -self.top
         else:
             self.ground_speed = min(abs(self.ground_speed), self.friction) * math.sin(self.ground_speed)
-        self.vec += self.facing * self.ground_speed
+        self.vec += v2(self.ground_speed, 0).rotate(self.angle)
+        self.floor_sensors_active = curlvl.collide()
         self.rect = pygame.Rect(self.vec, (self.width, self.height))
         self.floor_under_right_a = curlvl[1][self.rect.bottom][self.rect.right][3] > 0
         self.floor_under_right_b = curlvl[2][self.rect.bottom][self.rect.right][3] > 0

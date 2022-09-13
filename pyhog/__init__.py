@@ -51,7 +51,9 @@ kdict = {
     "action": pygame.K_k,
     "boost": pygame.K_l,
     "esc": pygame.K_ESCAPE,
-    "dbg": pygame.K_o
+    "dbg": pygame.K_o,
+    "rotate_left": pygame.K_LEFTBRACKET,
+    "rotate_right": pygame.K_RIGHTBRACKET
 }
 
 def ON():

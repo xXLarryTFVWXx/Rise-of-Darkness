@@ -23,7 +23,7 @@ class Character(Spritesheet):
         self.position = v2(pos)
         self._facing = v2(1,0)
         self.floor_sensors_active = True
-
+# pygame.Surface.blit(1)
     @property
     def facing(self):
         return self._facing

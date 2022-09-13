@@ -1,7 +1,7 @@
 import pyhog
 DEBUG = True
 pyhog.ON()
-WIN = pyhog.gui.Window(320, 240, bgcolor="cyan")#, fullscreen=True)
+WIN = pyhog.gui.Window(600, 600, bgcolor="cyan")#, fullscreen=True)
 WIN.display()
 Sonic = pyhog.dynamics.Character(WIN.surf, "sonic", {"stand": [(8,17,27,39)]})
 EHZ = pyhog.dynamics.Level(WIN.surf, "Art/Zones/EHZ/FG.png", ["Art/Zones/EHZ/colliders/colA.png", "Art/Zones/EHZ/colliders/colB.png"], "Emerald Hill", 1, bg="Art/Zones/EHZ/BG.png", y=-560)
@@ -28,7 +28,7 @@ while gRun:
         gRun = False
     if not state is None:
         if state[0] == "menu":
-            for btnlst in pyhog.gui.curmnu.btns:
+            for btnlst in pyhog.gui.menus['current'].btns:
                 for btn in btnlst:
                     btn.draw()
         else:
@@ -48,9 +48,9 @@ while gRun:
                         drc = -1
                     else:
                         drc = 0
-                    if pyhog.key_pressed("up"):
+                    if pyhog.key_pressed("rotate_left"):
                         Sonic.ang -= 4
-                    elif pyhog.key_pressed("down"):
+                    elif pyhog.key_pressed("rotate_right"):
                         Sonic.ang += 4
                     if time == "sunset":
                         if not sunset.loaded:
@@ -64,7 +64,6 @@ while gRun:
                 else:
                     pyhog.dynamics.curlvl.load({1:[Sonic]})
                     pyhog.dynamics.curlvl.start()
-    print(f'{boss=}')
             
     if boss == False:
         if pyhog.key_pressed("dbg"):

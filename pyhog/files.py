@@ -37,9 +37,9 @@ def get_state() -> str:
     """Gets the current state of the game with an external file"""
     with open(f"state.phg", "rb") as f:
         data = f.read()
-        if verify_version(f"state.phg", data):
+        # if verify_version(f"state.phg", data):
             
-            return MODES[data[-2]], data[-1]
+        return MODES[data[-2]], data[-1]
 
 def set_state(mode, ID:int) -> None:
     """Sets the current state of the game with an external file"""

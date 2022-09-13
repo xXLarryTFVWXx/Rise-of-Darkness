@@ -1,4 +1,5 @@
 import ctypes, math, random, functools, pygame
+from operator import is_
 from . import graphics
 from . import audio
 from . import files
@@ -23,6 +24,9 @@ class Character(graphics.Spritesheet):
         self.coll_anchor = pygame.Vector2(self.rect.center)
         self.ang = 0
         self.top = 6
+        self.acc = 0.046875
+        self.dec = 0.5
+        self.frc = self.acc
         self.height_radius = 19
         self.width_radius = 9
         self.loaded = False
@@ -47,25 +51,26 @@ class Character(graphics.Spritesheet):
     def update(self, drc: int):
         self.up = self.ang - 90
         if drc > 0:
-            if self.gsp < 0:
+            if self.gsp <= 0:
                 self.gsp += self.dec
                 if self.gsp >= 0:
                     self.gsp = 0.5
-            elif self.gsp > 0:
+            elif self.gsp >= 0:
                 self.gsp += self.acc
                 if self.gsp > self.top:
                     self.gsp = self.top
+                    print(f"{self.gsp=}")
         elif drc < 0:
-            if self.gsp > 0:
+            if self.gsp >= 0:
                 self.gsp -= self.dec
                 if self.gsp <= 0:
                     self.gsp = -0.5
-            elif self.gsp < 0:
+            elif self.gsp <= 0:
                 self.gsp -= self.acc
                 if abs(self.gsp) > self.top:
                     self.gsp = -self.top
         else:
-            self.gsp = min(abs(self.gsp), self.frc) * math.sin(self.gsp)
+            self.gsp -= min(abs(self.gsp), self.frc) * math.sin(self.gsp)
         """Change Radii depending if we are in a ball or not"""
         if self.is_ball:
             self.height_radius = 7
@@ -73,9 +78,8 @@ class Character(graphics.Spritesheet):
         else:
             self.height_radius = 19
             self.width_radius = 9
-        #
         self.activate_sensors()
-        self.pos += pygame.Vector2(self.gsp, 0).rotate(self.ang) 
+        self.pos += pygame.Vector2(self.gsp, 0).rotate(self.ang)
         self.up = self.ang - 90
         self.rect = pygame.Rect(*self.pos, 10, 10)
         if not self.loaded:
@@ -85,8 +89,17 @@ class Character(graphics.Spritesheet):
             if self.yvel > self.top:
                 self.yvel = self.top
             self.pos += pygame.Vector2(0, self.yvel)
+        self.rect.center = self.pos
         print(self.grounded)
-        curlvl.collide(self)
+        if self.active_sensors[0]:
+            print("What is sensor 0?")
+        is_colliding, angle_pre_equation = curlvl.collide(self)
+        self.ang = (256-angle_pre_equation)*1.40625
+        if is_colliding:
+            self.pos += pygame.Vector2(1,0).rotate(self.up)
+            self.grounded = True
+        else:
+            self.grounded = False
         self.render()
 class Boss(Character):
     def __init__(self, surf, name, cells, hits, spawn, behaviors=()):
@@ -138,7 +151,6 @@ class Level:
         self.collision = {}
         if not len(self.colFiles) > 2:
             for num, file in enumerate(self.colFiles):
-                
                 self.collision[num] = graphics.load_image(file)
         else:
             raise NotImplementedError("I have yet to code in support for more than 2 layers.")
@@ -148,6 +160,7 @@ class Level:
             self.bgIMG = None
         if self.bgm:
             audio.load_music(self.bgm)
+        self.pixel = (0,0,0,0)
         self.fgIMG = graphics.load_image(self.fg)
         self.start()
     def start(self):
@@ -159,16 +172,21 @@ class Level:
             audio.play_music(-1)
         self.started = True
         curlvl = self
+        for key in self.collision:
+            print(f'{key=}')
     def unload(self):
         pygame.mixer.music.unload()
     def collide(self, caller):
         if not caller.layer == 0:
             collision_layer = self.collision[caller.layer]
+        else:
+            collision_layer = self.collision[0]
         caller_pos = int(caller.pos.x), int(caller.pos.y)
-        pixel = collision_layer.get_at(*caller_pos)
-        is_colliding = not pixel == (0,0,0,0)
+        self.pixel = collision_layer.get_at(caller_pos)
+        is_colliding = not self.pixel == (0,0,0,0)
         if is_colliding:
-            return True, pixel[3]
+            return (True, self.pixel[3])
+        return (False, 0)
     def draw(self):
         if self.bgIMG:
             self.surf.blit(self.bgIMG, (self.x, 0))

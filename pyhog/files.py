@@ -38,7 +38,7 @@ def get_state() -> str:
     with open(f"state.phg", "rb") as f:
         data = f.read()
         # if verify_version(f"state.phg", data):
-            
+        """verision verification temporarily removed"""
         return MODES[data[-2]], data[-1]
 
 def set_state(mode, ID:int) -> None:
@@ -48,7 +48,7 @@ def set_state(mode, ID:int) -> None:
         
 def save(fname, data:str):
     with open(f"{fname}.phg", 'wb') as f:
-        f.write(VER + bytes(data))
+        f.write(VER + data.encode())
 
 def load(fname):
     with open(f"{fname}.phg", "rb") as f:

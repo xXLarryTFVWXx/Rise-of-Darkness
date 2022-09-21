@@ -1,4 +1,8 @@
-import ctypes, math, random, functools, pygame
+import ctypes
+import math
+import random
+import functools
+import pygame
 from operator import is_
 from . import graphics
 from . import audio
@@ -149,11 +153,11 @@ class Level:
         self.surf, self.fg, self.colFiles, self.name, self.lvl_id, self.bgm, self.bg, self.x, self.y = surf, fg, colliders, name, ctypes.c_int8(lvl_id).value, bgm, bg, x, y
     def load(self):
         self.collision = {}
-        if not len(self.colFiles) > 2:
+        if len(self.colFiles) == 2:
             for num, file in enumerate(self.colFiles):
                 self.collision[num] = graphics.load_image(file)
         else:
-            raise NotImplementedError("I have yet to code in support for more than 2 layers.")
+            raise NotImplementedError("I have yet to code in support for anything but 2 layers.")
         if self.bg:
             self.bgIMG = graphics.load_image(self.bg)
         else:
@@ -175,7 +179,10 @@ class Level:
         for key in self.collision:
             print(f'{key=}')
     def unload(self):
+        """This only for sure unloads the music right now, I am currently working on code to "unload" everything else that is created in the load method"""
         pygame.mixer.music.unload()
+        self.started = False
+        del self.fgIMG, self.pixel, self.bgIMG, self.collision
     def collide(self, caller):
         if not caller.layer == 0:
             collision_layer = self.collision[caller.layer]

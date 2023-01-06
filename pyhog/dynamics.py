@@ -3,16 +3,14 @@ import math
 import random
 import functools
 import pygame
-from operator import is_
 from . import graphics
 from . import audio
 from . import files
-from . import math as phgMath
 
 curlvl = None
 atkdur = 0
-
 grv = 0.25
+BLANK = (0,0,0,0)
 
 class Character(graphics.Spritesheet):
     def __init__(self, surf, characterName, cells:dict={"stand": [0,0,64,64]}, pos=()):
@@ -37,6 +35,7 @@ class Character(graphics.Spritesheet):
         self.grounded = False
         self.is_ball = False
         self.active_sensors = [True for _ in range(6)]
+        self.location = "in air"
     def activate_sensors(self):
         self.active_sensors = [True for _ in range(6)]
         if self.gsp > 0:
@@ -47,12 +46,14 @@ class Character(graphics.Spritesheet):
             self.active_sensors[2:2] = [False, False]
         else:
             if self.yvel > 0:
-                self.active_sensors[2:2] = [False, False]
+                self.active_sensors[2:4] = [False, False]
             else:
                 self.active_sensors[0:2] = [False, False]
 
         
     def update(self, drc: int):
+        if not self.loaded:
+            self.load()
         self.up = self.ang - 90
         if drc > 0:
             if self.gsp <= 0:
@@ -63,7 +64,6 @@ class Character(graphics.Spritesheet):
                 self.gsp += self.acc
                 if self.gsp > self.top:
                     self.gsp = self.top
-                    print(f"{self.gsp=}")
         elif drc < 0:
             if self.gsp >= 0:
                 self.gsp -= self.dec
@@ -86,24 +86,19 @@ class Character(graphics.Spritesheet):
         self.pos += pygame.Vector2(self.gsp, 0).rotate(self.ang)
         self.up = self.ang - 90
         self.rect = pygame.Rect(*self.pos, 10, 10)
-        if not self.loaded:
-            self.load()
-        if not self.grounded:
-            self.yvel += grv
-            if self.yvel > self.top:
-                self.yvel = self.top
-            self.pos += pygame.Vector2(0, self.yvel)
         self.rect.center = self.pos
-        print(self.grounded)
-        if self.active_sensors[0]:
-            print("What is sensor 0?")
-        is_colliding, angle_pre_equation = curlvl.collide(self)
+        self.location, angle_pre_equation = curlvl.collide(self)
         self.ang = (256-angle_pre_equation)*1.40625
-        if is_colliding:
+        while self.location == "underground":
             self.pos += pygame.Vector2(1,0).rotate(self.up)
-            self.grounded = True
+            self.location, angle_pre_equation = curlvl.collide(self)
         else:
-            self.grounded = False
+            self.grounded = self.location == "on surface"
+            if not self.grounded:
+                self.yvel += grv
+                if self.yvel > self.top:
+                    self.yvel = self.top
+                self.pos += pygame.Vector2(0, self.yvel)
         self.render()
 class Boss(Character):
     def __init__(self, surf, name, cells, hits, spawn, behaviors=()):
@@ -176,8 +171,6 @@ class Level:
             audio.play_music(-1)
         self.started = True
         curlvl = self
-        for key in self.collision:
-            print(f'{key=}')
     def unload(self):
         """This only for sure unloads the music right now, I am currently working on code to "unload" everything else that is created in the load method"""
         pygame.mixer.music.unload()
@@ -189,11 +182,14 @@ class Level:
         else:
             collision_layer = self.collision[0]
         caller_pos = int(caller.pos.x), int(caller.pos.y)
+        air_detector_base = pygame.Vector2(caller_pos) + pygame.Vector2(0,1).rotate(caller.up)
         self.pixel = collision_layer.get_at(caller_pos)
-        is_colliding = not self.pixel == (0,0,0,0)
-        if is_colliding:
-            return (True, self.pixel[3])
-        return (False, 0)
+        air_detector = int(air_detector_base[0]), int(air_detector_base[1])
+        air_pixel = collision_layer.get_at(air_detector)
+        at_surface = air_pixel == BLANK
+        grounded = not self.pixel == BLANK
+        location = "underground" if grounded and not at_surface else "on surface" if at_surface and grounded else "in air"
+        return (location, self.pixel[3])
     def draw(self):
         if self.bgIMG:
             self.surf.blit(self.bgIMG, (self.x, 0))
